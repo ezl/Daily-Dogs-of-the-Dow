@@ -1,3 +1,9 @@
+import numpy as np
+import csv
+import urllib2
+from datetime import datetime, date, timedelta
+from matplotlib import pyplot
+
 DOW_COMPONENTS = (
     ("AA", "Alcoa Inc. Common Stock"),
     ("AXP", "American Express Company Common"),
@@ -30,13 +36,6 @@ DOW_COMPONENTS = (
     ("WMT", "Wal-Mart Stores, Inc. Common St"),
     ("XOM", "Exxon Mobil Corporation Common"),
 )
-
-
-import numpy as np
-import csv
-import urllib2
-from datetime import datetime, date, timedelta
-from matplotlib import pyplot
 
 YAHOO_FINANCE_CSV_URL = """http://ichart.finance.yahoo.com/table.csv?s=%(symbol)s&a=%(start_month)s&b=%(start_day)s&c=%(start_year)s&d=%(end_month)s&e=%(end_day)s&f=%(end_year)s&g=%(interval)s&ignore=.csv"""
 
@@ -73,7 +72,6 @@ def get_yahoo_csv(symbol, start_date=None, end_date=date.today(), interval="d"):
     url = YAHOO_FINANCE_CSV_URL % args
     # reverse this sucker so they're cronological by index
     return [l for l in csv.DictReader(urllib2.urlopen(url))][::-1]
-
 
 if __name__ == "__main__":
     # Init
@@ -134,6 +132,15 @@ if __name__ == "__main__":
     pnl = position * dprices
     portfolio_pnl = pnl.sum(axis=0)
 
-    pyplot.plot(tdates[0], np.cumsum(portfolio_pnl))
-    pyplot.show()
+    # roc == "Return on Capital"
+    roc = portfolio_pnl / abs(long_or_short).sum() * DAILY_RISK_CAPITAL
+    bankroll = 5
 
+    pyplot.plot(tdates[0], np.cumsum(portfolio_pnl))
+    pyplot.title("Investing %s per trade, independent of bankroll" % DAILY_RISK_CAPITAL)
+
+    pyplot.figure()
+    pyplot.plot(tdates[0], np.cumprod(np.exp(roc)))
+    pyplot.title("Scale investment to bankroll size to become a billionaire")
+
+    pyplot.show()
