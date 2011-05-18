@@ -69,6 +69,7 @@ if __name__ == "__main__":
                        )
 
     # Just for clarity, truncate to only trade dates
+    previous_prices = prices[:, 1:-1]
     prices = prices[:, 2:]
     dprices = dprices[:, 2:]
     previous_returns = returns[:, 1:-1]
@@ -92,7 +93,7 @@ if __name__ == "__main__":
 
     # Just do an equal notional allocation in each asset
     long_or_short = (buys * 1) - (sales * 1)
-    position = DAILY_RISK_CAPITAL / prices * (long_or_short)
+    position = DAILY_RISK_CAPITAL / previous_prices * (long_or_short)
     pnl = position * dprices
     portfolio_pnl = pnl.sum(axis=0)
 
