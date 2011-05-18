@@ -2,6 +2,7 @@ import numpy as np
 from datetime import datetime, date, timedelta
 from matplotlib import pyplot
 from yahoofinance import get_yahoo_csv
+import random
 
 DOW_COMPONENTS = (
     ("AA", "Alcoa Inc. Common Stock"),
@@ -45,6 +46,7 @@ if __name__ == "__main__":
     NUM_LONGS = 10
     NUM_SHORTS = 10
     DAILY_RISK_CAPITAL = 100. # per symbol we trade.
+    PLOT = True
 
     # Get the raw data
     data = dict()
@@ -83,6 +85,12 @@ if __name__ == "__main__":
 
     # The "backtest"
 
+    # Add some noise to this guy
+    size = np.abs(previous_returns).mean() / 6.
+    noise = np.random.randn(previous_returns.shape[0], previous_returns.shape[1]) * size
+    noise = np.zeros_like(noise)
+    previous_returns = previous_returns + noise
+
     # In our version of dogs of the dow, we'll take the 10 worst performers every day and buy them for one day.
     low_threshold = previous_returns[previous_returns.argsort(axis=0)[NUM_LONGS - 1]].diagonal()
     buys = previous_returns <= low_threshold
@@ -93,6 +101,8 @@ if __name__ == "__main__":
 
     # Just do an equal notional allocation in each asset
     long_or_short = (buys * 1) - (sales * 1)
+    # long_or_short = np.array(random.sample(long_or_short, len(long_or_short)))
+
     position = DAILY_RISK_CAPITAL / previous_prices * (long_or_short)
     pnl = position * dprices
     portfolio_pnl = pnl.sum(axis=0)
@@ -101,11 +111,14 @@ if __name__ == "__main__":
     roc = portfolio_pnl / abs(long_or_short).sum() * DAILY_RISK_CAPITAL
     bankroll = 5
 
-    pyplot.plot(tdates[0], np.cumsum(portfolio_pnl))
-    pyplot.title("Investing %s per trade, independent of bankroll" % DAILY_RISK_CAPITAL)
+    if PLOT == True:
+        pyplot.plot(tdates[0], np.cumsum(portfolio_pnl))
+        pyplot.title("Investing %s per trade, independent of bankroll" % DAILY_RISK_CAPITAL)
 
-    pyplot.figure()
-    pyplot.plot(tdates[0], np.cumprod(np.exp(roc)))
-    pyplot.title("Scale investment to bankroll size to become a billionaire")
+        pyplot.figure()
+        pyplot.plot(tdates[0], np.cumprod(np.exp(roc)))
+        pyplot.title("Scale investment to bankroll size to become a billionaire")
 
-    pyplot.show()
+        pyplot.show()
+    print portfolio_pnl.sum()
+
