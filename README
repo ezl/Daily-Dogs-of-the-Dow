@@ -1,0 +1,10 @@
+This is a play "Dogs of the Dow" inspired strategy.
+
+Dogs of the Dow from http://en.wikipedia.org/wiki/The_Dogs_of_the_Dow
+"""The Dogs of the Dow is an investment strategy popularized by Michael B. O'Higgins, in 1991 which proposes that an investor annually select for investment the ten Dow Jones Industrial Average stocks whose dividend is the highest fraction of their price."""
+
+Instead of looking at valuation, this just looks at previous time period's returns for each Dow component, then buys the X worst performers and sells the X best performers in an attempt to capture some mean reversion.
+
+The notion is that investors are sheep and when components start moving, traders pile on and overbuy/oversell stocks beyond any reasonable change in valuation, so the components will revert to some short term mean during the next time period.
+
+The sampling interval (weekly) was chosen specifically because it makes this test look good.  Doesn't perform quite so hot on daily or monthly periods.
