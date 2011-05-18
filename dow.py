@@ -38,7 +38,7 @@ DOW_COMPONENTS = (
 )
 
 
-if __name__ == "__main__":
+def main():
     # Init
     END_DATE = date.today()
     START_DATE = END_DATE - timedelta(days=8 * 365)
@@ -46,12 +46,12 @@ if __name__ == "__main__":
     NUM_LONGS = 10
     NUM_SHORTS = 10
     DAILY_RISK_CAPITAL = 100. # per symbol we trade.
-    PLOT = True
+    PLOT = False
 
     # Get the raw data
     data = dict()
     for symbol in DOW_SYMBOLS:
-        print("Retrieving data for: %s" % symbol)
+        # print("Retrieving data for: %s" % symbol)
         # we need to extra days of returns for the backtest, so start 2 days early
         data[symbol] = get_yahoo_csv(symbol=symbol,
                                      start_date=START_DATE - timedelta(days=2),
@@ -86,9 +86,9 @@ if __name__ == "__main__":
     # The "backtest"
 
     # Add some noise to this guy
-    size = np.abs(previous_returns).mean() / 6.
+    size = np.abs(previous_returns).mean() / 3.
     noise = np.random.randn(previous_returns.shape[0], previous_returns.shape[1]) * size
-    noise = np.zeros_like(noise)
+    # noise = np.zeros_like(noise)
     previous_returns = previous_returns + noise
 
     # In our version of dogs of the dow, we'll take the 10 worst performers every day and buy them for one day.
@@ -121,4 +121,7 @@ if __name__ == "__main__":
 
         pyplot.show()
     print portfolio_pnl.sum()
+
+if __name__ == "__main__":
+    main()
 
